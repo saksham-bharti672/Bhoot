@@ -1,0 +1,685 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#14532d">
+<title>Dairy Management System</title>
+
+<style>
+:root{
+ --green:#166534;
+ --dark:#123524;
+ --light:#f3f7f3;
+ --white:#fff;
+ --muted:#718078;
+ --border:#e3ebe4;
+ --red:#dc2626;
+ --shadow:0 5px 22px rgba(20,60,35,.07);
+}
+*{box-sizing:border-box}
+body{
+ margin:0;background:var(--light);color:#172b20;
+ font-family:Arial,Helvetica,sans-serif;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+#loginPage{
+ min-height:100vh;display:flex;align-items:center;
+ justify-content:center;padding:20px;
+ background:linear-gradient(140deg,#123524,#166534);
+}
+.login-card{
+ background:white;width:100%;max-width:400px;
+ border-radius:22px;padding:30px;box-shadow:var(--shadow);
+}
+.logo{
+ width:55px;height:55px;border-radius:16px;
+ background:#e3f3e6;display:grid;place-items:center;
+ font-size:28px;margin-bottom:18px;
+}
+.login-card h2{margin:0 0 7px;font-size:25px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:25px}
+.field{margin-bottom:15px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+input,select{
+ width:100%;padding:12px;border:1px solid var(--border);
+ border-radius:10px;background:white;outline:none;color:#172b20;
+}
+input:focus,select:focus{border-color:var(--green)}
+.btn{
+ border:0;border-radius:10px;padding:12px 17px;
+ background:var(--green);color:white;font-weight:600;
+}
+.btn:hover{opacity:.9}
+.btn-full{width:100%}
+.btn-light{background:#e7f3e9;color:var(--green)}
+.btn-red{background:#fee2e2;color:#b91c1c}
+.btn-sm{padding:8px 11px;font-size:12px}
+#app{min-height:100vh}
+.topbar{
+ height:65px;background:white;border-bottom:1px solid var(--border);
+ display:flex;align-items:center;justify-content:space-between;
+ padding:0 22px;position:sticky;top:0;z-index:10;
+}
+.brand{font-size:18px;font-weight:800;color:var(--green)}
+.brand small{display:block;font-size:10px;color:var(--muted);font-weight:500}
+.top-actions{display:flex;align-items:center;gap:12px}
+.user-info{text-align:right;font-size:12px}
+.user-info b{display:block;font-size:13px}
+.layout{display:flex;min-height:calc(100vh - 65px)}
+.sidebar{
+ width:230px;background:white;border-right:1px solid var(--border);
+ padding:20px 13px;flex-shrink:0;
+}
+.nav-label{
+ font-size:10px;letter-spacing:1px;color:#9aa79e;
+ padding:12px 10px 8px;font-weight:bold;
+}
+.nav{
+ width:100%;padding:12px;border:0;background:transparent;
+ border-radius:9px;text-align:left;color:#53645a;
+ margin-bottom:4px;font-size:13px;font-weight:600;
+}
+.nav.active,.nav:hover{background:#e8f4ea;color:var(--green)}
+.main{padding:25px;width:100%;min-width:0;max-width:1500px;margin:auto}
+.page-title{font-size:23px;font-weight:800;margin:0 0 5px}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:23px}
+.stats{
+ display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:15px;margin-bottom:22px;
+}
+.stat,.panel{
+ background:white;border:1px solid var(--border);
+ border-radius:14px;padding:18px;box-shadow:var(--shadow);
+}
+.stat span{font-size:12px;color:var(--muted)}
+.stat h2{font-size:25px;margin:10px 0 0;color:var(--dark)}
+.panel{margin-bottom:18px;min-width:0}
+.panel-head{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:10px;flex-wrap:wrap;margin-bottom:16px;
+}
+.panel-head h3{margin:0;font-size:16px}
+.form-grid{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;
+}
+.form-grid .full{grid-column:1/-1}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:13px}
+th{
+ text-align:left;background:#f5f8f5;color:#68776c;
+ padding:12px;font-size:11px;
+}
+td{padding:13px 12px;border-bottom:1px solid #edf1ed}
+.empty{text-align:center;color:var(--muted);padding:25px}
+.badge{
+ background:#e7f5e9;color:#166534;border-radius:20px;
+ padding:5px 9px;font-size:11px;font-weight:bold;
+}
+.actions{display:flex;gap:7px}
+.notice{
+ padding:12px;border-radius:10px;margin-bottom:15px;
+ font-size:13px;display:none;
+}
+.notice.error{display:block;background:#fee2e2;color:#991b1b}
+.notice.success{display:block;background:#dcfce7;color:#166534}
+.mobile-menu{display:none}
+.bottom-nav{display:none}
+@media(max-width:850px){
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .sidebar{width:190px}
+ .main{padding:18px}
+}
+@media(max-width:600px){
+ .sidebar{display:none}
+ .main{padding:16px 12px 85px}
+ .topbar{padding:0 14px;height:58px}
+ .layout{min-height:calc(100vh - 58px)}
+ .stats{gap:9px}
+ .stat{padding:13px}
+ .stat h2{font-size:21px}
+ .stat span{font-size:11px}
+ .form-grid{grid-template-columns:1fr}
+ .form-grid .full{grid-column:auto}
+ .bottom-nav{
+  display:flex;position:fixed;bottom:0;left:0;right:0;
+  background:white;border-top:1px solid var(--border);
+  justify-content:space-around;padding:8px 3px;
+  z-index:20;
+ }
+ .bottom-nav button{
+  border:0;background:none;color:#68776c;
+  font-size:10px;display:flex;flex-direction:column;
+  align-items:center;gap:4px;padding:5px;
+ }
+ .bottom-nav button.active{color:var(--green);font-weight:bold}
+ .bottom-nav span{font-size:19px}
+ .user-info{font-size:10px}
+ .user-info b{font-size:11px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<section id="loginPage">
+ <div class="login-card">
+  <div class="logo">🥛</div>
+  <h2>Dairy Management</h2>
+  <div class="sub">Sign in to your dairy account</div>
+
+  <div id="loginMsg" class="notice"></div>
+
+  <form id="loginForm">
+   <div class="field">
+    <label>Username</label>
+    <input id="username" required autocomplete="username" placeholder="Enter username">
+   </div>
+   <div class="field">
+    <label>Password</label>
+    <input id="password" type="password" required autocomplete="current-password" placeholder="Enter password">
+   </div>
+   <button class="btn btn-full" id="loginBtn">Sign In →</button>
+  </form>
+  <p style="font-size:11px;color:#89958c;text-align:center;margin-top:22px">
+   Secure Dairy Management Portal
+  </p>
+ </div>
+</section>
+
+<!-- APPLICATION -->
+<div id="app" class="hidden">
+ <header class="topbar">
+  <div class="brand">🥛 DAIRY PRO
+   <small>MANAGEMENT SYSTEM</small>
+  </div>
+  <div class="top-actions">
+   <div class="user-info">
+    <b id="userName">User</b>
+    <span id="userRole">Role</span>
+   </div>
+   <button class="btn btn-light btn-sm" onclick="logout()">Logout</button>
+  </div>
+ </header>
+
+ <div class="layout">
+  <aside class="sidebar">
+   <div class="nav-label">MAIN MENU</div>
+   <div id="sideNav"></div>
+  </aside>
+
+  <main class="main">
+   <div id="message" class="notice"></div>
+
+   <!-- DASHBOARD -->
+   <section id="dashboardPage">
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-sub">Your dairy business overview</p>
+
+    <div class="stats">
+     <div class="stat">
+      <span>Total Milk (L)</span>
+      <h2 id="totalQty">0</h2>
+     </div>
+     <div class="stat">
+      <span>Total Amount (₹)</span>
+      <h2 id="totalAmount">₹0</h2>
+     </div>
+     <div class="stat">
+      <span>Total Entries</span>
+      <h2 id="totalEntries">0</h2>
+     </div>
+     <div class="stat">
+      <span>Farmers</span>
+      <h2 id="totalFarmers">-</h2>
+     </div>
+    </div>
+
+    <div class="panel">
+     <div class="panel-head">
+      <h3>Monthly Overview</h3>
+      <input type="month" id="dashMonth" style="max-width:170px">
+     </div>
+     <div class="table-wrap">
+      <table>
+       <thead><tr>
+        <th>Date</th><th>Farmer</th><th>Shift</th>
+        <th>Qty (L)</th><th>Amount</th>
+       </tr></thead>
+       <tbody id="dashTable"></tbody>
+      </table>
+     </div>
+    </div>
+   </section>
+
+   <!-- ADD ENTRY -->
+   <section id="entryPage" class="hidden">
+    <h1 class="page-title">Milk Entry</h1>
+    <p class="page-sub">Add daily milk collection details</p>
+
+    <div class="panel">
+     <h3>New Milk Collection</h3>
+     <form id="entryForm">
+      <div class="form-grid">
+       <div class="field">
+        <label>Date</label>
+        <input type="date" id="entryDate" required>
+       </div>
+       <div class="field">
+        <label>Shift</label>
+        <select id="shift" required>
+         <option value="Morning">Morning</option>
+         <option value="Evening">Evening</option>
+        </select>
+       </div>
+       <div class="field full">
+        <label>Select Farmer</label>
+        <select id="entryFarmer" required>
+         <option value="">Select farmer</option>
+        </select>
+       </div>
+       <div class="field">
+        <label>Milk Quantity (Litres)</label>
+        <input type="number" id="qty" min="0" step="0.01" required placeholder="0.00">
+       </div>
+       <div class="field">
+        <label>Rate per Litre (₹)</label>
+        <input type="number" id="rate" min="0" step="0.01" required placeholder="0.00">
+       </div>
+       <div class="full">
+        <div style="background:#edf6ee;padding:15px;border-radius:10px;margin-bottom:15px">
+         <span style="font-size:12px;color:#64756a">Calculated Amount</span>
+         <h2 style="margin:5px 0;color:#166534" id="calculated">₹0.00</h2>
+        </div>
+        <button class="btn btn-full" id="entryBtn">Save Milk Entry</button>
+       </div>
+      </div>
+     </form>
+    </div>
+   </section>
+
+   <!-- REPORTS -->
+   <section id="reportsPage" class="hidden">
+    <h1 class="page-title">Milk Reports</h1>
+    <p class="page-sub">Daily and monthly collection records</p>
+    <div class="panel">
+     <div class="form-grid">
+      <div class="field">
+       <label>Select Month</label>
+       <input type="month" id="reportMonth">
+      </div>
+      <div class="field" id="reportFarmerField">
+       <label>Farmer</label>
+       <select id="reportFarmer">
+        <option value="">All Farmers</option>
+       </select>
+      </div>
+     </div>
+     <button class="btn" onclick="loadReports()">Show Report</button>
+     <button class="btn btn-light" onclick="exportCSV()">Export CSV</button>
+    </div>
+    <div class="stats">
+     <div class="stat"><span>Total Quantity</span><h2 id="rQty">0 L</h2></div>
+     <div class="stat"><span>Total Amount</span><h2 id="rAmount">₹0</h2></div>
+     <div class="stat"><span>Records</span><h2 id="rCount">0</h2></div>
+     <div class="stat"><span>Average Rate</span><h2 id="rRate">₹0</h2></div>
+    </div>
+    <div class="panel">
+     <div class="panel-head"><h3>Collection Records</h3></div>
+     <div class="table-wrap">
+      <table>
+       <thead><tr>
+        <th>Date</th><th>Farmer</th><th>Shift</th>
+        <th>Qty (L)</th><th>Rate</th><th>Amount</th>
+       </tr></thead>
+       <tbody id="reportTable"></tbody>
+      </table>
+     </div>
+    </div>
+   </section>
+
+   <!-- FARMERS -->
+   <section id="farmersPage" class="hidden">
+    <h1 class="page-title">Farmers</h1>
+    <p class="page-sub">Manage your registered milk suppliers</p>
+    <div class="panel" id="addFarmerPanel">
+     <h3>Add New Farmer</h3>
+     <form id="farmerForm">
+      <div class="form-grid">
+       <div class="field">
+        <label>Farmer Name</label>
+        <input id="farmerName" required placeholder="Full name">
+       </div>
+       <div class="field">
+        <label>Mobile Number</label>
+        <input id="farmerPhone" placeholder="Mobile number">
+       </div>
+       <div class="field full">
+        <label>Login Password</label>
+        <input id="farmerPass" type="password" required minlength="4" placeholder="Minimum 4 characters">
+       </div>
+       <div class="full">
+        <button class="btn">Add Farmer</button>
+       </div>
+      </div>
+     </form>
+    </div>
+    <div class="panel">
+     <h3>Farmer List</h3>
+     <div class="table-wrap">
+      <table>
+       <thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Action</th></tr></thead>
+       <tbody id="farmerTable"></tbody>
+      </table>
+     </div>
+    </div>
+   </section>
+
+   <!-- STAFF -->
+   <section id="staffPage" class="hidden">
+    <h1 class="page-title">Operators</h1>
+    <p class="page-sub">Manage dairy staff accounts</p>
+    <div class="panel">
+     <h3>Create Operator</h3>
+     <form id="staffForm">
+      <div class="form-grid">
+       <div class="field">
+        <label>Full Name</label>
+        <input id="staffName" required>
+       </div>
+       <div class="field">
+        <label>Username</label>
+        <input id="staffUser" required placeholder="e.g. operator01">
+       </div>
+       <div class="field full">
+        <label>Password</label>
+        <input id="staffPass" type="password" required minlength="4">
+       </div>
+       <div class="full">
+        <button class="btn">Create Operator</button>
+       </div>
+      </div>
+     </form>
+    </div>
+    <div class="panel">
+     <h3>Active Operators</h3>
+     <div class="table-wrap">
+      <table>
+       <thead><tr><th>Username</th><th>Name</th><th>Action</th></tr></thead>
+       <tbody id="staffTable"></tbody>
+      </table>
+     </div>
+    </div>
+   </section>
+
+   <!-- PASSWORD -->
+   <section id="passwordPage" class="hidden">
+    <h1 class="page-title">Security Settings</h1>
+    <p class="page-sub">Change your account password</p>
+    <div class="panel">
+     <form id="passwordForm">
+      <div class="field">
+       <label>New Password</label>
+       <input type="password" id="newPass" minlength="4" required>
+      </div>
+      <div class="field">
+       <label>Confirm Password</label>
+       <input type="password" id="confirmPass" minlength="4" required>
+      </div>
+      <button class="btn">Update Password</button>
+     </form>
+    </div>
+   </section>
+  </main>
+ </div>
+
+ <nav class="bottom-nav" id="bottomNav"></nav>
+</div>
+
+<script>
+/* ==========================================
+   CONFIGURATION
+   Paste your deployed Apps Script Web App URL
+   ========================================== */
+
+const API_URL = "https://script.google.com/macros/s/AKfycbxgYOzsovw7oAb_trIoNTpwK7Fw2bAzgDcN1F3LRVdyRElSHW1Y9la-2GPZXfVnjiWSVg/exec";
+
+/* APPLICATION STATE */
+
+let token = "";
+let role = "";
+let user = "";
+let farmerId = "";
+let farmers = [];
+let reportData = [];
+let dashData = [];
+let currentPage = "dashboard";
+
+/* HELPERS */
+
+const $ = id => document.getElementById(id);
+
+const today = () => {
+ const d = new Date();
+ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+};
+
+const currentMonth = () => today().slice(0,7);
+
+const money = n => "₹"+Number(n||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+})[c]);
+
+function message(text,type="success",id="message"){
+ const el=$(id);
+ el.textContent=text;
+ el.className="notice "+type;
+ setTimeout(()=>{el.className="notice"},4000);
+}
+
+/* API CONNECTION */
+
+async function api(action,data={}){
+ const response=await fetch(API_URL,{
+  method:"POST",
+  body:JSON.stringify({a:action,t:token,...data})
+ });
+ if(!response.ok) throw new Error("Server connection failed");
+ const result=await response.json();
+ if(!result.ok) throw new Error(result.err||"Something went wrong");
+ return result;
+}
+
+/* LOGIN */
+
+$("loginForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const btn=$("loginBtn");
+ btn.disabled=true;
+ btn.textContent="Signing in...";
+
+ try{
+  const r=await api("login",{
+   user:$("username").value,
+   pass:$("password").value
+  });
+
+  token=r.t;
+  role=r.role;
+  user=r.name;
+  farmerId=r.fid||"";
+
+  sessionStorage.setItem("dairy_token",token);
+  sessionStorage.setItem("dairy_role",role);
+  sessionStorage.setItem("dairy_name",user);
+  sessionStorage.setItem("dairy_fid",farmerId);
+
+  await startApp();
+
+ }catch(err){
+  message(err.message,"error","loginMsg");
+ }finally{
+  btn.disabled=false;
+  btn.textContent="Sign In →";
+ }
+});
+
+function restoreSession(){
+ token=sessionStorage.getItem("dairy_token")||"";
+ role=sessionStorage.getItem("dairy_role")||"";
+ user=sessionStorage.getItem("dairy_name")||"";
+ farmerId=sessionStorage.getItem("dairy_fid")||"";
+ return !!token;
+}
+
+/* START APPLICATION */
+
+async function startApp(){
+ $("loginPage").classList.add("hidden");
+ $("app").classList.remove("hidden");
+
+ $("userName").textContent=user;
+ $("userRole").textContent=role.toUpperCase();
+
+ setupNavigation();
+
+ $("entryDate").value=today();
+ $("dashMonth").value=currentMonth();
+ $("reportMonth").value=currentMonth();
+
+ await loadFarmers();
+ await navigate("dashboard");
+}
+
+/* NAVIGATION */
+
+const navItems=[
+ {id:"dashboard",name:"Dashboard",icon:"🏠",roles:["admin","operator","farmer"]},
+ {id:"entry",name:"Milk Entry",icon:"🥛",roles:["admin","operator"]},
+ {id:"reports",name:"Reports",icon:"📊",roles:["admin","operator","farmer"]},
+ {id:"farmers",name:"Farmers",icon:"👨‍🌾",roles:["admin"]},
+ {id:"staff",name:"Operators",icon:"👥",roles:["admin"]},
+ {id:"password",name:"Change Password",icon:"🔒",roles:["admin","operator","farmer"]}
+];
+
+function setupNavigation(){
+ const allowed=navItems.filter(n=>n.roles.includes(role));
+
+ const html=allowed.map(n=>
+ `<button class="nav" data-page="${n.id}">
+ ${n.icon} &nbsp; ${n.name}
+ </button>`).join("");
+
+ $("sideNav").innerHTML=html;
+
+ $("bottomNav").innerHTML=allowed.map(n=>
+ `<button data-page="${n.id}">
+ <span>${n.icon}</span>${n.name}
+ </button>`).join("");
+
+ document.querySelectorAll("[data-page]").forEach(b=>{
+  b.addEventListener("click",()=>navigate(b.dataset.page));
+ });
+}
+
+async function navigate(page){
+ if(!navItems.some(n=>n.id===page&&n.roles.includes(role))) return;
+
+ currentPage=page;
+
+ ["dashboard","entry","reports","farmers","staff","password"].forEach(p=>{
+  $(p+"Page").classList.toggle("hidden",p!==page);
+ });
+
+ document.querySelectorAll("[data-page]").forEach(b=>{
+  b.classList.toggle("active",b.dataset.page===page);
+ });
+
+ try{
+  if(page==="dashboard") await loadDashboard();
+  if(page==="reports") await loadReports();
+  if(page==="farmers"&&role==="admin") await loadFarmers();
+  if(page==="staff"&&role==="admin") await loadStaff();
+ }catch(e){
+  message(e.message,"error");
+ }
+ window.scrollTo(0,0);
+}
+
+/* FARMERS */
+
+async function loadFarmers(){
+ if(role==="farmer") return;
+
+ const r=await api("farmers");
+ farmers=r.list||[];
+
+ $("entryFarmer").innerHTML=
+ '<option value="">Select farmer</option>'+
+ farmers.map(f=>`<option value="${esc(f.id)}">${esc(f.name)} (${esc(f.id)})</option>`).join("");
+
+ $("reportFarmer").innerHTML=
+ '<option value="">All Farmers</option>'+
+ farmers.map(f=>`<option value="${esc(f.id)}">${esc(f.name)}</option>`).join("");
+
+ $("totalFarmers").textContent=farmers.length;
+
+ $("farmerTable").innerHTML=farmers.length?farmers.map(f=>`
+ <tr>
+ <td><span class="badge">${esc(f.id)}</span></td>
+ <td>${esc(f.name)}</td>
+ <td>${esc(f.phone)}</td>
+ <td><button class="btn btn-red btn-sm" onclick="removeFarmer('${esc(f.id)}')">Remove</button></td>
+ </tr>`).join(""):'<tr><td colspan="4" class="empty">No farmers found</td></tr>';
+}
+
+$("farmerForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ try{
+  const r=await api("addFarmer",{
+   name:$("farmerName").value.trim(),
+   phone:$("farmerPhone").value.trim(),
+   pass:$("farmerPass").value
+  });
+  $("farmerForm").reset();
+  message("Farmer created successfully. ID: "+r.id);
+  await loadFarmers();
+ }catch(e){message(e.message,"error")}
+});
+
+async function removeFarmer(id){
+ if(!confirm("Remove this farmer?"))return;
+ try{
+  await api("rmFarmer",{id});
+  message("Farmer removed");
+  await loadFarmers();
+ }catch(e){message(e.message,"error")}
+}
+
+/* STAFF */
+
+async function loadStaff(){
+ const r=await api("staff");
+ $("staffTable").innerHTML=(r.list||[]).map(s=>`
+ <tr>
+ <td>${esc(s.username)}</td>
+ <td>${esc(s.name)}</td>
+ <td><button class="btn btn-red btn-sm" onclick="removeStaff('${esc(s.username)}')">Remove</button></td>
+ </tr>`).join("")||'<tr><td colspan="3" class="empty">No operators found</td></tr>';
+}
+
+$("staffForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ try{
+  await api("addStaff",{
+   user:$("staffUser").value,
+   name:$("staffName").value,
+   pass:$("staffPass").value
+  });
+  $("staffForm").reset();
